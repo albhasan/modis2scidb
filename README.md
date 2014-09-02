@@ -7,10 +7,10 @@ Python scripts for uploading MODIS images to SciDB
 <ul>
 <li>Python.</li>
 <li>SciDB.</li>
-<li>These scripts must be installed on the SciDB coordinator instance and they must be ran as a user enabled to use IQUERY</li>
+<li>These scripts must be installed on the SciDB coordinator instance and they must be ran using an user enabled to execute IQUERY.</li>
 </ul>
 
-Files:
+<h3>Files:</h3>
 <ul>	
 <li><code>LICENSE</code> - License file.</li>
 <li><code>README.md</code> - This file.</li>
@@ -20,9 +20,9 @@ Files:
 <li><code>install_pyhdf.sh</code> - Script for installing pyhdf.</li>
 </ul>
 
-<h3>Instructions</h3>
+<h3>Instructions:</h3>
 <ol>
-<li>Use the <code>install_pyhdf.sh</code> script to install pyhdf.</li>
+<li>Use the <code>install_pyhdf.sh</code> script to install pyhdf on the SciDB coordinator instance.</li>
 <li>Download the scripts to the <i>script-folder</i></li>
 <li>Create a destination array in SciDB. This is the <i>dest-array</i>
 	<ul>
@@ -35,8 +35,3 @@ Files:
 <li>Run <code>checkFolder.py</code> pointing to the <i>check-folder</i>, the script checks the folder for binary files. this script must be able to find and run <code>load2scidb.py</code> in the <i>script-folder</i>.</li>
 <li>Run <code>addHdfs2bin.py</code> to export MODIS HDFs to binary files. The resulting files can be stored in the <i>check-folder</i></li>
 </ol>
-
-
-
-<code>addHdfs2bin.py</code>
-
