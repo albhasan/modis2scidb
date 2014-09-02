@@ -18,6 +18,7 @@ Python scripts for uploading MODIS images to SciDB
 <li><code>checkFolder.py</code> - Script that checks a folder for SciDB's binary files.</li>
 <li><code>load2scidb.py</code> - Script that loads a binary file to a SciDB database.</li>
 <li><code>install_pyhdf.sh</code> - Script for installing pyhdf.</li>
+<li><code>run.py</code> - Example script. It builds the path to the MODIS files and calls the <code>addHdfs2bin.py</code></li>
 </ul>
 
 <h3>Instructions:</h3>
