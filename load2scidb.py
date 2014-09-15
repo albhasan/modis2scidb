@@ -32,7 +32,17 @@ def getArrayname(aname):
 	res = res.replace("-","_")
 	return res
 
-def load2scidb(bfile, DESTARRAY, chunkSize1D, cmdaql, cmdafl, loadInstance):
+
+def processDatatypes(schema):
+	'''Return the data types from each field in an array schema'''
+	datatypes = []
+	for s in schema.split(','):
+		ss = s.strip()
+		datatypes.append(ss[ss.index(':') + 1:len(ss)])
+	return ', '.join(datatypes)
+
+
+def load2scidb(bfile, DESTARRAY, flatArrayAQL, cmdaql, cmdafl, loadInstance):
 	'''Load the binary file to SciDB'''
 	#---------------
 	# Script starts here
@@ -40,20 +50,19 @@ def load2scidb(bfile, DESTARRAY, chunkSize1D, cmdaql, cmdafl, loadInstance):
 	cmd = ""
 	try:
 		tmparraylist = []
-		bpath, bfilename = os.path.split(bfile)
-		TMP_VALUE1D = getArrayname(bfilename)
+		TMP_VALUE1D = flatArrayAQL.split(' ')[2]
+		schema = flatArrayAQL[flatArrayAQL.index('<') + 1:flatArrayAQL.index('>')]
 		#---------------
 		#Create the temporal 1D array for holding the data
 		#---------------
-		aql = "CREATE ARRAY " + TMP_VALUE1D + " <lltid:int64, ndvi:int16, evi:int16, quality:uint16, red:int16, nir:int16, blue:int16, mir:int16, viewza:int16, sunza:int16, relaza:int16, cdoy:int16, reli:int16> [k=0:*," + str(chunkSize1D) + ",0];"
-		cmd = cmdaql + aql + "\""
+		cmd = cmdaql + flatArrayAQL + "\""
 		retcode = subp.call(cmd, shell = True)#os.system(cmd)
 		tmparraylist.append(TMP_VALUE1D)
 		logging.debug("Created the 1D array for the values: " + TMP_VALUE1D)
 		#---------------
 		#Load to 1D temporal array
 		#---------------
-		afl = "load(" + TMP_VALUE1D + ", '" + bfile + "', " + str(loadInstance) + ", '(int64, int16, int16, uint16, int16, int16, int16, int16, int16, int16, int16, int16, int16)', 0, shadowArray);"
+		afl = "load(" + TMP_VALUE1D + ", '" + bfile + "', " + str(loadInstance) + ", '(" + processDatatypes(schema) + ")', 0, shadowArray);"
 		cmd = cmdafl + afl + "\""
 		retcode = subp.call(cmd, shell = True)
 		logging.debug("Loaded the binary file to 1D-Array using instance " + str(loadInstance))
@@ -90,19 +99,39 @@ def main(argv):
 	parser = argparse.ArgumentParser(description = "Loads a SCIDB's binary file to SCIDB")
 	parser.add_argument("binaryFilepath", help = "Path to a binary file (*.sdbbin)")
 	parser.add_argument("destArray", help = "3D Array to upload the data to")
-	parser.add_argument("-c", "--chunkSize1D", help = "Chunksize for the temporal 1D-array holding the loaded data", type = int, default = 262144)
-	parser.add_argument("-l", "--loadInstance", help = "SciDB's instance used for uploading the data", type = int, default = -2)
-	parser.add_argument("--log", help = "Log level", default = 'WARNING')
+	parser.add_argument("-c", "--chunkSize1D", help = "Chunksize for the temporal 1D-array holding the loaded data", type = int, default = 0)
+	parser.add_argument("-l", "--loadInstance", help = "SciDB's instance used for uploading the data. Default = coordinator instance", type = int, default = -2)
+	parser.add_argument("--log", help = "Log level. Default = WARNING", default = 'WARNING')
 	#Get paramters
 	args = parser.parse_args()
 	binaryFilepath = args.binaryFilepath	
+	chunkSize1D = args.chunkSize1D
 	destArray = args.destArray
 	chunkSize1D = args.chunkSize1D
 	loadInstance = args.loadInstance
 	log = args.log
+	prod = ""
 	####################################################
 	# CONFIG
 	####################################################
+	modisprod = ['MOD09Q1', 'MOD13Q1']
+	flatArraySchema = {
+		'MOD09Q1': 'lltid:int64, red:int16, nir:int16, quality:uint16',
+		'MOD13Q1': 'lltid:int64, ndvi:int16, evi:int16, quality:uint16, red:int16, nir:int16, blue:int16, mir:int16, viewza:int16, sunza:int16, relaza:int16, cdoy:int16, reli:int16'
+	}
+	flatArrayChunksize = {
+		'MOD09Q1': 1048576, # ~6MB
+		'MOD13Q1': 262144 # ~6MB
+	}
+	for mp in modisprod:
+		if mp in binaryFilepath:
+			prod = mp
+	if prod == "":
+		logging.exception("Unknown MODIS product: The MODIS product could not be figured out form the binary file name")
+		raise Exception("Unknown MODIS product")
+	flatDimension = '[k=0:*, ' + str(chunkSize1D) + ', 0]'
+	if chunkSize1D < 1:
+		flatDimension = '[k=0:*, ' + str(flatArrayChunksize[prod]) + ',0]'
 	numeric_loglevel = getattr(logging, log.upper(), None)
 	if not isinstance(numeric_loglevel, int):
 		raise ValueError('Invalid log level: %s' % log)
@@ -112,17 +141,19 @@ def main(argv):
 	iqpath = "/opt/scidb/14.3/bin/" # Path to iquery
 	cmdaql = iqpath + "iquery -nq \"" # Prefix on how to call iquery with AQL expression
 	cmdafl = iqpath + "iquery -naq \"" # Prefix on how to call iquery with AFL expression
-	#chunkSize1D = 262144# Chunk size of 1D arrays (load)
 	#loadInstance = -2 #HACK: -2 (Load all data using the coordinator instance of the query.) is way faster than -1(Initiate the load from all instances)
 	#TODO: Try named instances for loading when a multi-node SciDB is in place
 	####################################################
 	# SCRIPT
 	####################################################
-	load2scidb(binaryFilepath, destArray, chunkSize1D, cmdaql, cmdafl, loadInstance)
+	bpath, bfilename = os.path.split(binaryFilepath)	
+	TMP_VALUE1D = getArrayname(bfilename)
+	flatArrayAQL = "CREATE ARRAY " + TMP_VALUE1D + " <" + flatArraySchema[prod] + ">" + flatDimension + ";"
+	load2scidb(binaryFilepath, destArray, flatArrayAQL, cmdaql, cmdafl, loadInstance)
 	t1 = datetime.datetime.now()
 	tt = t1 - t0
 	logging.info("Done in " + str(tt))
-	
-	
+
+
 if __name__ == "__main__":
    main(sys.argv[1:])
