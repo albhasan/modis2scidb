@@ -190,7 +190,6 @@ def callAddHdfCommand(scriptFolder, hdf2binFolder, loadFolder, hdfPaths, binaryF
 	print "Copying binary file to KEEP folder.."
 	tmpPts = binaryFilepath.split("/")
 	fn = tmpPts[len(tmpPts) - 1]
-	
 	if os.path.isfile(binaryFilepath):
 		cmd1 = "cp " + binaryFilepath + " " + hdf2binFolder + '/' + fn
 		subp.check_call(str(cmd1), shell=True)
