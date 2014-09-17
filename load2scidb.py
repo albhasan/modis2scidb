@@ -79,7 +79,7 @@ def load2scidb(bfile, DESTARRAY, flatArrayAQL, cmdaql, cmdafl, loadInstance):
 		for an in tmparraylist:
 			aql = "DROP ARRAY " + an + ";"
 			cmd = cmdaql + aql + "\""
-			#retcode = subp.call(cmd, shell = True)#os.system(cmd)
+			retcode = subp.call(cmd, shell = True)#os.system(cmd)
 		logging.debug("Temporal arrays dropped")
 	except subp.CalledProcessError as e:
 		logging.exception("CalledProcessError: " + cmd + "\n" + str(e.message))
@@ -99,6 +99,7 @@ def main(argv):
 	parser = argparse.ArgumentParser(description = "Loads a SCIDB's binary file to SCIDB")
 	parser.add_argument("binaryFilepath", help = "Path to a binary file (*.sdbbin)")
 	parser.add_argument("destArray", help = "3D Array to upload the data to")
+	parser.add_argument("-p", "--product", help = "MODIS product. e.g MOD09Q1", default = "default")
 	parser.add_argument("-c", "--chunkSize1D", help = "Chunksize for the temporal 1D-array holding the loaded data", type = int, default = 0)
 	parser.add_argument("-l", "--loadInstance", help = "SciDB's instance used for uploading the data. Default = coordinator instance", type = int, default = -2)
 	parser.add_argument("--log", help = "Log level. Default = WARNING", default = 'WARNING')
@@ -109,8 +110,8 @@ def main(argv):
 	destArray = args.destArray
 	chunkSize1D = args.chunkSize1D
 	loadInstance = args.loadInstance
+	prod = args.product
 	log = args.log
-	prod = ""
 	####################################################
 	# CONFIG
 	####################################################
@@ -123,11 +124,12 @@ def main(argv):
 		'MOD09Q1': 1048576, # ~6MB
 		'MOD13Q1': 262144 # ~6MB
 	}
-	for mp in modisprod:
-		if mp in binaryFilepath:
-			prod = mp
-	if prod == "":
-		logging.exception("Unknown MODIS product: The MODIS product could not be figured out form the binary file name")
+	if prod == 'default':
+		for mp in modisprod:
+			if mp in binaryFilepath:
+				prod = mp
+	if prod in modisprod == False:
+		logging.exception("Unknown MODIS product: The MODIS product could not be figured out.")
 		raise Exception("Unknown MODIS product")
 	flatDimension = '[k=0:*, ' + str(chunkSize1D) + ', 0]'
 	if chunkSize1D < 1:
