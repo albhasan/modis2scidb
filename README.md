@@ -33,13 +33,14 @@ Python scripts for uploading MODIS images to SciDB
 </li>
 <li>Create a folder accessible by SciDB. This is the <i>check-folder</i> from where data is loaded to SciDB.</li>
 <li>Run <code>checkFolder.py</code> pointing to the <i>check-folder</i>; the files found here will be uploaded to SciDB. For example: <code>python checkFolder.py /home/scidb/toLoad/ /home/scidb/modis2scidb/ MOD09Q1_TEST009_20140519 &</code></li>
-<li>Run <code>addHdfs2bin.py</code> to export MODIS HDFs to binary files. The resulting files can be stored in the <i>check-folder</i>. 
-
-For example: 
+<li>Run <code>addHdfs2bin.py</code> to export MODIS HDFs to binary files. After finishing, the file can be copied to the <i>check-folder</i>. or example: 
 <code>
-python addHdfs2bin.py /home/scidb/MODIS_ARC/MODIS/MOD09Q1.005/2000.02.18/MOD09Q1.A2000049.h10v08.005.2006268191328.hdf /home/scidb/toLoad/MOD09Q1.A2000049.h10v08.005.2006268191328.sdbbin</code></li>
+python addHdfs2bin.py /home/scidb/MODIS_ARC/MODIS/MOD09Q1.005/2000.02.18/MOD09Q1.A2000049.h10v08.005.2006268191328.hdf /home/scidb/MOD09Q1.A2000049.h10v08.005.2006268191328.sdbbin
+mv /home/scidb/MOD09Q1.A2000049.h10v08.005.2006268191328.sdbbin /home/scidb/toLoad/MOD09Q1.A2000049.h10v08.005.2006268191328.sdbbin
+</code>
+</li>
 
 
 
-<li><b>NOTE</b>: Alternatively, modify and call <code>run.py</code> for calling </li>
+
 </ol>
