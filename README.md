@@ -5,6 +5,7 @@ Python scripts for uploading MODIS images to SciDB
 
 <h3>Pre-requisites</h3>
 <ul>
+<li>git.</li>
 <li>Python.</li>
 <li>SciDB 14.3. SciDB must be installed in the default location</li>
 <li>These scripts must be installed on the SciDB coordinator instance and they must be ran using an user enabled to execute IQUERY.</li>
@@ -18,12 +19,12 @@ Python scripts for uploading MODIS images to SciDB
 <li><code>checkFolder.py</code> - Script that checks a folder for SciDB's binary files.</li>
 <li><code>load2scidb.py</code> - Script that loads a binary file to a SciDB database.</li>
 <li><code>install_pyhdf.sh</code> - Script for installing pyhdf.</li>
-<li><code>run.py</code> - Example script. It builds the path to the MODIS files and then it calls <code>addHdfs2bin.py</code></li>
+<li><code>run.py</code> - It builds the path to the MODIS files and then it calls <code>addHdfs2bin.py</code>.</li>
 </ul>
 
 <h3>Instructions:</h3>
 <ol>
-<li>Download the scripts to the <i>script-folder</i></li>
+<li>Download the scripts to the <i>script-folder</i>. Use: <code>git clone https://github.com/albhasan/modis2scidb.git</code></li>
 <li>Use the <code>install_pyhdf.sh</code> script to install pyhdf on the SciDB coordinator instance. For example <code>sudo ./install_pyhdf.sh</code></li>
 <li>Create a destination array in SciDB. This is the <i>dest-array</i>
 	<ul>
@@ -39,7 +40,5 @@ Python scripts for uploading MODIS images to SciDB
 		<li><code>mv /home/scidb/MOD09Q1.A2000049.h10v08.005.2006268191328.sdbbin /home/scidb/toLoad/MOD09Q1.A2000049.h10v08.005.2006268191328.sdbbin</code></li>
 	</ul>
 </li>
-
-<li><b>NOTE</b>: Alternatively, modify and call <code>run.py</code> for calling </li>
-
+<li><b>NOTE</b>: Alternatively, you can use <code>run.py</code> to make calls to <code>addHdfs2bin.py</code> on many HDFs.</li>
 </ol>
