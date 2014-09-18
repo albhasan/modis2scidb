@@ -58,21 +58,21 @@ def load2scidb(bfile, DESTARRAY, flatArrayAQL, cmdaql, cmdafl, loadInstance):
 		cmd = cmdaql + flatArrayAQL + "\""
 		retcode = subp.call(cmd, shell = True)#os.system(cmd)
 		tmparraylist.append(TMP_VALUE1D)
-		logging.debug("Created the 1D array for the values: " + TMP_VALUE1D)
+		logging.info("Created the 1D array for the values: " + TMP_VALUE1D)
 		#---------------
 		#Load to 1D temporal array
 		#---------------
 		afl = "load(" + TMP_VALUE1D + ", '" + bfile + "', " + str(loadInstance) + ", '(" + processDatatypes(schema) + ")', 0, shadowArray);"
 		cmd = cmdafl + afl + "\""
 		retcode = subp.call(cmd, shell = True)
-		logging.debug("Loaded the binary file to 1D-Array using instance " + str(loadInstance))
+		logging.info("Loaded the binary file to 1D-Array using instance " + str(loadInstance))
 		#---------------
 		#Re-build dimension indexes and insert into the destination array
 		#---------------
 		afl = "insert(redimension(apply(" + TMP_VALUE1D + ",col_id, int64(lltid - floor(lltid/pow(10,11)) * pow(10,11) - floor((lltid - (floor(lltid/pow(10,11)) * pow(10,11)))/pow(10,6)) * pow(10,6)), row_id, int64(floor((lltid - (floor(lltid/pow(10,11)) * pow(10,11)))/pow(10,6))),time_id, int64(floor(lltid/pow(10,11)))), " + DESTARRAY + "), " + DESTARRAY + ");"
 		cmd = cmdafl + afl + "\""
 		retcode = subp.call(cmd, shell = True)
-		logging.debug("Dimension indexes are built and inserted into array " + DESTARRAY)
+		logging.info("Dimension indexes are built and inserted into array " + DESTARRAY)
 		#---------------
 		#Removes temporal arrays
 		#---------------
@@ -80,7 +80,7 @@ def load2scidb(bfile, DESTARRAY, flatArrayAQL, cmdaql, cmdafl, loadInstance):
 			aql = "DROP ARRAY " + an + ";"
 			cmd = cmdaql + aql + "\""
 			retcode = subp.call(cmd, shell = True)#os.system(cmd)
-		logging.debug("Temporal arrays dropped")
+		logging.info("Temporal arrays dropped")
 	except subp.CalledProcessError as e:
 		logging.exception("CalledProcessError: " + cmd + "\n" + str(e.message))
 	except ValueError as e:
@@ -134,6 +134,7 @@ def main(argv):
 	flatDimension = '[k=0:*, ' + str(chunkSize1D) + ', 0]'
 	if chunkSize1D < 1:
 		flatDimension = '[k=0:*, ' + str(flatArrayChunksize[prod]) + ',0]'
+	#Log
 	numeric_loglevel = getattr(logging, log.upper(), None)
 	if not isinstance(numeric_loglevel, int):
 		raise ValueError('Invalid log level: %s' % log)

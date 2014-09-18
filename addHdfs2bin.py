@@ -10,6 +10,7 @@ import logging
 #********************************************************
 # UTIL
 #********************************************************
+
 def isLeapYear(year):
 	'''Returns TRUE if the given year (int) is leap and FALSE otherwise'''
 	leapyear = False
@@ -217,23 +218,21 @@ def main(argv):
 		if os.path.isfile(hp):
 			if hp.endswith('.hdf'):
 				print hp + ' ...'
-				###############################################################################
-				#tmp = addHdf2binMod13q1(hp, binaryFilepath, resolution, period, startyear, lineMin, lineMax, sampMin, sampMax)
 				tmp = addHdf2bin(hp, binaryFilepath, period, startyear, lineMin, lineMax, sampMin, sampMax)
-				###############################################################################
-				logging.debug('HDF: ' + hp + ' added to: ' + binaryFilepath)
+				logging.info('HDF: ' + hp + ' added to: ' + binaryFilepath)
 				hdfcount += 1
+			else:
+				logging.warning('Unknown file type: ' + fn)
 		elif os.path.isdir(hp):
 			for (dirpath, dirnames, filenames) in os.walk(hp):
 				for fn in filenames:
 					if fn.endswith('.hdf'):
 						print dirpath + '/' + fn + ' ...'
-						###############################################################################
-						#tmp = addHdf2binMod13q1(dirpath + '/' + fn, binaryFilepath, resolution, period, startyear, lineMin, lineMax, sampMin, sampMax)
 						tmp = addHdf2bin(dirpath + '/' + fn, binaryFilepath, period, startyear, lineMin, lineMax, sampMin, sampMax)
-						###############################################################################
-						logging.debug('HDF: ' + hp + ' added to: ' + binaryFilepath)
+						logging.info('HDF: ' + hp + ' added to: ' + binaryFilepath)
 						hdfcount += 1
+					else:
+						logging.warning('Unknown file type: ' + fn)
 				break
 	t1 = datetime.datetime.now()	
 	tt = t1 - t0
