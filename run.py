@@ -209,11 +209,11 @@ def callAddHdfCommand(scriptFolder, hdf2binFolder, loadFolder, hdfPaths, binaryF
 		logging.warning("File not found: " + binaryFilepath)
 		
 	
-def loadhdfCHRONOS(modisPath, basebfilepath, dates, hRange, vRange, hdf2binFolder, loadFolder, scriptFolder, lineMin, lineMax, sampMin, sampMax, period):
-	'''Builds the file paths and calls the load script'''
+def loadhdfCHRONOS(modisPath, basebfilepath, dates, hRange, vRange, hdf2binFolder, loadFolder, scriptFolder, lineMin, lineMax, sampMin, sampMax, period, prod, log):
+	'''Builds the file paths and calls the load script. The paths match the storage folder schema .../modisProductPath/year/HDFs'''
 	hdflist = []
-	head = 'MOD09Q1'
-	col = '005'
+	#head = 'MOD09Q1'
+	#col = '005'
 	ext = 'hdf'
 	splitStr = '.'
 	nParts = 6
@@ -233,7 +233,7 @@ def loadhdfCHRONOS(modisPath, basebfilepath, dates, hRange, vRange, hdf2binFolde
 		if os.path.isdir(basePath):
 			dirs = os.listdir( basePath )
 			#Builds the name of the binary file
-			binaryFilepath = buildBinaryFilePath(basebfilepath, hRange, vRange, date)
+			binaryFilepath = buildBinaryFilePath(basebfilepath, hRange, vRange, date, prod)
 			#Get the path to the HDFs
 			for f in dirs:
 				if checkHdfName(f, splitStr, nParts, ext):#Filter by number of parts and file extension
@@ -249,43 +249,15 @@ def loadhdfCHRONOS(modisPath, basebfilepath, dates, hRange, vRange, hdf2binFolde
 				hdfPaths.append(basePath + f)
 			#Command
 			if len(hdfPaths) > 0:
-				callAddHdfCommand(scriptFolder, hdf2binFolder, loadFolder, hdfPaths, binaryFilepath, lineMin, lineMax, sampMin, sampMax, period)
+				callAddHdfCommand(scriptFolder, hdf2binFolder, loadFolder, hdfPaths, binaryFilepath, lineMin, lineMax, sampMin, sampMax, period, log)
 			else:
 				logging.warning("No HDF file match the given DOY and TILE")
 		else:
 			logging.warning("Not a directory: " + basePath)
 
 
-def loadhdfGISOBAMAsingle(modisPath, basebfilepath, dates, hRange, vRange, hdf2binFolder, loadFolder, scriptFolder, lineMin, lineMax, sampMin, sampMax, period):
-	#Loads a set of images, each one as a single binary file
-	for date in dates:
-		#Builds the basepath where to find the HDFs
-		d = doy2date(date)
-		yyyy = d[0]
-		mm = d[1]
-		dd = d[2]
-		if len(str(d[1])) == 1:
-			mm = '0'  +str(d[1])
-		if len(str(d[2])) == 1:
-			dd = '0' + str(d[2])
-		basePath = modisPath + str(yyyy) + '.'  + str(mm) + '.'  + str(dd) + '/'
-		if os.path.isdir(basePath):
-			#Get the path to the HDFs
-			for i in hRange:
-				for j in vRange:
-					tile = '*' + buildTileName(i, j) + '*'
-					for file in os.listdir(basePath):
-						if fnmatch.fnmatch(file, tile):
-							if fnmatch.fnmatch(file, '*' + str(date) + '*'):
-								hdfPaths = []
-								hdfPaths.append(basePath + file)
-								binaryFilepath = buildBinaryFilePath1(basebfilepath, i, j, date)
-								#Command
-								callAddHdfCommand(scriptFolder, hdf2binFolder, loadFolder, hdfPaths, binaryFilepath, lineMin, lineMax, sampMin, sampMax, period)
-								
-								
 def loadhdfModisPackage(modisPath, basebfilepath, dates, hRange, vRange, hdf2binFolder, loadFolder, scriptFolder, lineMin, lineMax, sampMin, sampMax, period, prod, log):
-	'''Builds the file paths and calls the load script'''
+	'''Builds the file paths and calls the load script. The paths match the storage folder schema of R' MODIS package'''
 	for date in dates:
 		hdfPaths = []
 		#Builds the basepath where to find the HDFs
@@ -320,6 +292,7 @@ def main(argv):
 	t0 = datetime.datetime.now()
 	parser = argparse.ArgumentParser(description = "Exports MODIS-HDFs to binary files for uploading to SCIDB")
 	parser.add_argument("modisPath", help = "Path to the folder containing the MODIS HDFs")
+	parser.add_argument("modisFolderSchema", help = "Folder structure for storing HDFs. R-MODIS for the R MODIS package structure. MP-YEAR for /modisProduct/year/hdf", choices=['R-MODIS', 'MP-YEAR'])
 	parser.add_argument("basebfilepath", help = "Folder to temporally store the resulting binary files")
 	parser.add_argument("loadFolder", help = "Folder from where the binary files are uploaded to SCIDB")
 	#parser.add_argument("scriptFolder", help = "Folder containing pythons scripts")
@@ -335,6 +308,7 @@ def main(argv):
 	#Get paramters
 	args = parser.parse_args()
 	modisPath = args.modisPath
+	modisFolderSchema = args.modisFolderSchema
 	basebfilepath = args.basebfilepath
 	loadFolder = args.loadFolder
 	scriptFolder = buildPath(sys.path[0])
@@ -389,13 +363,12 @@ def main(argv):
 	#loadFolder = '/home/scidb/toLoad/'
 	#modisPath = '/home/scidb/MODIS_ARC/MODIS/MOD09Q1.005/' # '/dados1/modisOriginal/MOD13Q1/' # '/mnt/lun0/MODIS_ARC/MODIS/MOD09Q1.005/'
 	#dates = buildDoy(2000, 2001, period)
-
-	#Use HSD folder structure of R MODIS PACKAGE. All HDFs of the same date to a binary file
-	loadhdfModisPackage(modisPath, basebfilepath, dates, hRange, vRange, hdf2binFolder, loadFolder, scriptFolder, lineMin, lineMax, sampMin, sampMax, period, prod, log)
+	if modisFolderSchema == 'R-MODIS':
+		loadhdfModisPackage(modisPath, basebfilepath, dates, hRange, vRange, hdf2binFolder, loadFolder, scriptFolder, lineMin, lineMax, sampMin, sampMax, period, prod, log)
+	elif modisFolderSchema == 'MP-YEAR':
+		loadhdfCHRONOS(modisPath, basebfilepath, dates, hRange, vRange, hdf2binFolder, loadFolder, scriptFolder, lineMin, lineMax, sampMin, sampMax, period, prod, log)
 	#Use HSD folder structure of R MODIS PACKAGE. Each HDF to a binary file
 	#loadhdfGISOBAMAsingle(modisPath, basebfilepath, dates, hRange, vRange, hdf2binFolder, loadFolder, scriptFolder, lineMin, lineMax, sampMin, sampMax, period)
-	#Use HDF folder structure from CHRONOS (BRASIL)
-	#loadhdfCHRONOS(modisPath, basebfilepath, dates, hRange, vRange, hdf2binFolder, loadFolder, scriptFolder, lineMin, lineMax, sampMin, sampMax, period)
 	t1 = datetime.datetime.now()	
 	tt = t1 - t0
 	logging.info("Finished in " + str(tt))
