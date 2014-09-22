@@ -346,8 +346,8 @@ def main(argv):
 	sampMin = 0
 	sampMax = 4799
 	dates = buildDoy(yearFrom, yearTo, period)
-	if yearFrom == 2000:
-		dates = buildDoy(yearFrom, yearTo, period)
+	#if yearFrom == 2000:
+	#	dates = buildDoy(yearFrom, yearTo, period)
 	#Log
 	numeric_loglevel = getattr(logging, log.upper(), None)
 	if not isinstance(numeric_loglevel, int):
