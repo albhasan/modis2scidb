@@ -141,7 +141,7 @@ def main(argv):
 	logging.basicConfig(filename = 'log_load2scidb.log', level = numeric_loglevel, format = '%(asctime)s %(levelname)s: %(message)s')
 	logging.info("load2scidb: " + str(args))
 	#
-	iqpath = "/opt/scidb/14.3/bin/" # Path to iquery
+	iqpath = "/opt/scidb/" + os.environ['SCIDB_VER'] + "/bin/" # Path to iquery
 	cmdaql = iqpath + "iquery -nq \"" # Prefix on how to call iquery with AQL expression
 	cmdafl = iqpath + "iquery -naq \"" # Prefix on how to call iquery with AFL expression
 	#loadInstance = -2 #HACK: -2 (Load all data using the coordinator instance of the query.) is way faster than -1(Initiate the load from all instances)
