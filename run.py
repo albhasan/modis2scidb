@@ -317,8 +317,8 @@ def main(argv):
 	hMax = args.hMax
 	vMin = args.vMin
 	vMax = args.vMax
-	hRange = range(hMin,hMax)
-	vRange = range(vMin,vMax)
+	hRange = range(hMin,hMax + 1)
+	vRange = range(vMin,vMax + 1)
 	prod = args.product
 	yearFrom = args.yearFrom
 	yearTo = args.yearTo
