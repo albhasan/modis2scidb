@@ -30,7 +30,7 @@ def main(argv):
 	if not isinstance(numeric_loglevel, int):
 		raise ValueError('Invalid log level: %s' % log)
 	logging.basicConfig(filename = 'log_checkFolder.log', level = numeric_loglevel, format = '%(asctime)s %(levelname)s: %(message)s')
-	logging.info("addHdfs2bin: " + str(args))
+	logging.info("checkFolder: " + str(args))
 	#
 	#checktime = 60 # seconds
 	## GIS-OBAMA
