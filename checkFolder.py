@@ -14,7 +14,8 @@ def main(argv):
 	parser.add_argument("path_to_watch", help = "Folder path")
 	parser.add_argument("scriptFolder", help = "Folder containing python scripts")
 	parser.add_argument("destArray", help = "3D Array to upload the data to")
-	parser.add_argument("-t", "--checktime", help = "Waiting time between folder inspections", type = int, default = 60)
+	parser.add_argument("product", help = "MODIS product. e.g MOD09Q1")
+	parser.add_argument("-t", "--checktime", help = "Waiting time between folder inspections. Default is 60 (seconds)", type = int, default = 60)
 	parser.add_argument("--log", help = "Log level", default = 'WARNING')
 	#Get paramters
 	args = parser.parse_args()
@@ -22,7 +23,13 @@ def main(argv):
 	scriptFolder = args.scriptFolder
 	destArray = args.destArray
 	checktime = args.checktime
+	prod = args.product
 	log = args.log
+
+	if path_to_watch[-1:] != '/':
+		path_to_watch = path_to_watch + '/'
+        if scriptFolder[-1:] != '/':
+                scriptFolder = scriptFolder + '/'
 	####################################################
 	# CONFIG
 	####################################################
@@ -50,17 +57,14 @@ def main(argv):
 		after = dict ([(f, None) for f in os.listdir (path_to_watch)])
 		added = [f for f in after if not f in before]
 		if added:
-			logging.debug("Added: ", ", ".join(added))
+			logging.debug("New file in folder: ", ", ".join(added))
 			for ad in added:
 				fileFullPath = path_to_watch + str(ad)
 				fileName, fileExtension = os.path.splitext(fileFullPath)
 				if(fileExtension == '.sdbbin'):
 					#Call to load2scidb.py
-					if path_to_watch[-1:] == '/':
-						binaryFilepath = path_to_watch + str(ad)
-					else:
-						binaryFilepath = path_to_watch + '/' + str(ad)
-					cmd = cmdprefix + binaryFilepath + " " + destArray
+					binaryFilepath = path_to_watch + str(ad)
+					cmd = cmdprefix + " -p " + prod + " "+ binaryFilepath + " " + destArray
 					print cmd
 					logging.info(cmd)
 					try:

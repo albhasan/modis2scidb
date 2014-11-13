@@ -128,9 +128,12 @@ def main(argv):
 		for mp in modisprod:
 			if mp in binaryFilepath:
 				prod = mp
+	if prod == 'default':
+                logging.exception("Unknown MODIS product: The MODIS product could not be figured out.")
+                raise Exception("Unknown MODIS product")
 	if prod in modisprod == False:
-		logging.exception("Unknown MODIS product: The MODIS product could not be figured out.")
-		raise Exception("Unknown MODIS product")
+		logging.exception("Unknown MODIS product: MODIS product not found.")
+		raise Exception("MODIS product not found")
 	flatDimension = '[k=0:*, ' + str(chunkSize1D) + ', 0]'
 	if chunkSize1D < 1:
 		flatDimension = '[k=0:*, ' + str(flatArrayChunksize[prod]) + ',0]'

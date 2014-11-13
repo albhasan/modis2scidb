@@ -303,7 +303,11 @@ def main(argv):
 	parser.add_argument("-p", "--product", help = "MODIS product. e.g MOD09Q1", default = "default")
 	parser.add_argument("-yf", "--yearFrom", help = "Starting year of data. Default = 2000", type = int, default = 2000)
 	parser.add_argument("-yt", "--yearTo", help = "End year of data. Default = 2013", type = int, default = 2013)
-	parser.add_argument("-h2b", "--hdf2binFolder", help = "Folder to keep a copy of the binary files", default = '')	
+	parser.add_argument("-h2b", "--hdf2binFolder", help = "Folder to keep a copy of the binary files", default = '')
+	parser.add_argument("-lmin", "--lineMin", help = "Minimun image row to load. Use it only when an image subset is needed. Default is 0", default = 0)
+	parser.add_argument("-lmax", "--lineMax", help = "Maximum image row to load. Use it only when an image subset is needed. Default is 4799", default = 4799)
+	parser.add_argument("-smin", "--sampMin", help = "Minimum image column to load. Use it only when an image subset is needed. Default is 0", default = 0)
+	parser.add_argument("-smax", "--sampMax", help = "Maximum image column to load. Use it only when an image subset is needed. Default is 4799 ", default = 4799)
 	parser.add_argument("--log", help = "Log level. Default = WARNING", default = 'WARNING')
 	#Get paramters
 	args = parser.parse_args()
@@ -323,6 +327,10 @@ def main(argv):
 	yearFrom = args.yearFrom
 	yearTo = args.yearTo
 	hdf2binFolder = args.hdf2binFolder
+	lineMin = args.lineMin
+	lineMax = args.lineMax
+	sampMin = args.sampMin
+	sampMax = args.sampMax
 	log = args.log
 	####################################################
 	# CONFIG
@@ -340,11 +348,6 @@ def main(argv):
 		logging.exception("Unknown MODIS product: The MODIS product could not be figured out.")
 		raise Exception("Unknown MODIS product")
 	period = temporalResolution[prod]
-	# Pixel interval
-	lineMin = 0
-	lineMax = 4799
-	sampMin = 0
-	sampMax = 4799
 	dates = buildDoy(yearFrom, yearTo, period)
 	#if yearFrom == 2000:
 	#	dates = buildDoy(yearFrom, yearTo, period)
