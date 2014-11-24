@@ -222,7 +222,7 @@ def main(argv):
 				logging.info('HDF: ' + hp + ' added to: ' + binaryFilepath)
 				hdfcount += 1
 			else:
-				logging.warning('Unknown file type: ' + fn)
+				logging.warning('Unknown file type: ' + hp)
 		elif os.path.isdir(hp):
 			for (dirpath, dirnames, filenames) in os.walk(hp):
 				for fn in filenames:
