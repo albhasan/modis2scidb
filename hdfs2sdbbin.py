@@ -141,7 +141,7 @@ def main(argv):
 			#	cmd = cmd + " & "
 			logging.info(cmd)
 			subprocess.check_call(str(cmd), shell = True)
-	except subp.CalledProcessError as e:
+	except subprocess.CalledProcessError as e:
 		logging.exception("CalledProcessError: " + cmd + "\n" + str(e.message))
 	except ValueError as e:
 		logging.exception("ValueError: " + cmd + "\n" + str(e.message))

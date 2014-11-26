@@ -124,7 +124,6 @@ def main(argv):
 		period = prodTemporalResolution[product]
 		startyear = prodStartYear[product]
 		bands = prodBands[product]
-
 		filename = os.path.basename(hdfFile)
 		time_id = date2grid(filename.split(".")[1], period, startyear)
 		arg0 = "modis2scidb"
@@ -134,7 +133,7 @@ def main(argv):
 		arg4 = " --t " + str(time_id)
 		cmd = arg0 + arg1 + arg2 + arg3 + arg4
 		subprocess.check_call(str(cmd), shell = True)
-	except subp.CalledProcessError as e:
+	except subprocess.CalledProcessError as e:
 		logging.exception("CalledProcessError: " + cmd + "\n" + str(e.message))
 	except ValueError as e:
 		logging.exception("ValueError: " + cmd + "\n" + str(e.message))
