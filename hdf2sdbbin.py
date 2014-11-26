@@ -79,7 +79,7 @@ def main(argv):
 	parser.add_argument("--log", help = "Log level. Default = WARNING", default = 'WARNING')
 	#Get paramters
 	args = parser.parse_args()
-	hdfFile = os.path.join(args.hdfFile, '')
+	hdfFile = args.hdfFile
 	loadFolder = os.path.join(args.loadFolder, '')
 	product = args.product
 	log = args.log
