@@ -116,7 +116,7 @@ def load2scidb(bfile, DESTARRAY, flatArrayAQL, cmdaql, cmdafl, loadInstance):
 		for an in tmparraylist:
 			afl = "remove(" + an + ");"
 			cmd = cmd + afl + "; "
-		cmd = cmdafl + cmd
+		cmd = cmdafl + cmd + "\""
 		logging.debug("Query: " + cmd)
 		retcode = subp.call(cmd, shell = True)
 		logging.info("Load completed: " + bfile)
