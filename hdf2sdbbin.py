@@ -132,6 +132,7 @@ def main(argv):
 		arg3 = " --b " + bands
 		arg4 = " --t " + str(time_id)
 		cmd = arg0 + arg1 + arg2 + arg3 + arg4
+		logging.debug("Command to call: " + cmd)
 		subprocess.check_call(str(cmd), shell = True)
 	except subprocess.CalledProcessError as e:
 		logging.exception("CalledProcessError: " + cmd + "\n" + str(e.message))
