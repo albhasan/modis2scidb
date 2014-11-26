@@ -42,7 +42,7 @@ def processDatatypes(schema):
 	return ', '.join(datatypes)
 
 
-def load2scidb(bfile, DESTARRAY, flatArrayAQL, cmdaql, cmdafl, loadInstance):
+def load2scidbStepByStep(bfile, DESTARRAY, flatArrayAQL, cmdaql, cmdafl, loadInstance):
 	'''Load the binary file to SciDB'''
 	#---------------
 	# Script starts here
@@ -91,6 +91,46 @@ def load2scidb(bfile, DESTARRAY, flatArrayAQL, cmdaql, cmdafl, loadInstance):
 		e = sys.exc_info()[0]
 		logging.exception("Unknown exception: " + cmd + "\n" + str(e.message))
 
+		
+def load2scidb(bfile, DESTARRAY, flatArrayAQL, cmdaql, cmdafl, loadInstance):
+	'''Load the binary file to SciDB'''
+	#---------------
+	# Script starts here
+	#---------------
+	cmd = ""
+	try:
+		logging.info("Loading: " + bfile)
+		tmparraylist = []
+		TMP_VALUE1D = flatArrayAQL.split(' ')[2]
+		schema = flatArrayAQL[flatArrayAQL.index('<') + 1:flatArrayAQL.index('>')]
+		#Create the temporal 1D array for holding the data
+		cmd = flatArrayAQL + "; "
+		tmparraylist.append(TMP_VALUE1D)
+		#Load to 1D temporal array
+		afl = "load(" + TMP_VALUE1D + ", '" + bfile + "', " + str(loadInstance) + ", '(" + processDatatypes(schema) + ")', 0, shadowArray);"
+		cmd = cmd + afl + "; "
+		#Re-build dimension indexes and insert into the destination array
+		afl = "insert(redimension(apply(" + TMP_VALUE1D + ",col_id, int64(lltid - floor(lltid/pow(10,11)) * pow(10,11) - floor((lltid - (floor(lltid/pow(10,11)) * pow(10,11)))/pow(10,6)) * pow(10,6)), row_id, int64(floor((lltid - (floor(lltid/pow(10,11)) * pow(10,11)))/pow(10,6))),time_id, int64(floor(lltid/pow(10,11)))), " + DESTARRAY + "), " + DESTARRAY + ");"
+		cmd = cmd + afl + "; "
+		#Remove temporal arrays
+		for an in tmparraylist:
+			afl = "remove(" + an + ");"
+			cmd = cmd + afl + "; "
+		cmd = cmdafl + cmd
+		logging.debug("Query: " + cmd)
+		retcode = subp.call(cmd, shell = True)
+		logging.info("Load completed: " + bfile)
+	except subp.CalledProcessError as e:
+		logging.exception("CalledProcessError: " + cmd + "\n" + str(e.message))
+	except ValueError as e:
+		logging.exception("ValueError: " + cmd + "\n" + str(e.message))
+	except OSError as e:
+		logging.exception("OSError: " + cmd + "\n" + str(e.message))
+	except:
+		e = sys.exc_info()[0]
+		logging.exception("Unknown exception: " + cmd + "\n" + str(e.message))		
+		
+		
 #********************************************************
 #WORKER
 #********************************************************
