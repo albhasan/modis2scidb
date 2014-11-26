@@ -78,7 +78,7 @@ def main(argv):
 	parser.add_argument("hdfFolder", help = "Path to the folder containing the HDFs")
 	parser.add_argument("loadFolder", help = "Folder from where the binary files are uploaded to SCIDB")
 	parser.add_argument("product", help = "Product. e.g MOD09Q1")
-	parser.add_argument("--regex", help = "Regular expression fol filtering files.", default = '^.*\.(hdf)$')
+	parser.add_argument("--regex", help = "Regular expression for filtering files.", default = '^.*\.(hdf|HDF)$')
 	parser.add_argument("--log", help = "Log level. Default = WARNING", default = 'WARNING')
 	#Get paramters
 	args = parser.parse_args()
