@@ -46,7 +46,7 @@ def date2grid(dateFileName, period, startyear):
 	'''Return an time index (timid) from the input date (MODIS DOY) and time period (e.g 8 days). '''
 	res = -1
 	if period > 0:
-		dateYYYYDOY = dateFileName
+		dateYYYYDOY = dateFileName[1:] #Remove the A precedding the date
 		year = int(dateYYYYDOY[0:4])
 		doy = int(dateYYYYDOY[4:7])
 		ppy = int(365 / period) + 1 # Periods per year
@@ -128,7 +128,7 @@ def main(argv):
 	for i in range(0, len(hdfs)) :
 		hdf = hdfs[i]
 		filename = os.path.basename(hdf)
-		time_id = date2grid(filename.split(".")[1][1:], period, startyear)
+		time_id = date2grid(filename.split(".")[1], period, startyear)
 		arg0 = "modis2scidb"
 		arg1 = " --f " + hdf
 		arg2 = " --o " + loadFolder + os.path.splitext(filename)[0] + ".sdbbin"
