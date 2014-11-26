@@ -115,25 +115,27 @@ def main(argv):
 	####################################################
 	# CONFIG
 	####################################################
-	modisprod = ['MOD09Q1', 'MOD13Q1']
+	modisprod = ['MOD09Q1', 'MOD13Q1', 'TRMM_3B43']
 	flatArraySchema = {
-		'MOD09Q1': 'lltid:int64, red:int16, nir:int16, quality:uint16',
-		'MOD13Q1': 'lltid:int64, ndvi:int16, evi:int16, quality:uint16, red:int16, nir:int16, blue:int16, mir:int16, viewza:int16, sunza:int16, relaza:int16, cdoy:int16, reli:int16'
+		'MOD09Q1':	'lltid:int64, red:int16, nir:int16, quality:uint16',
+		'MOD13Q1':	'lltid:int64, ndvi:int16, evi:int16, quality:uint16, red:int16, nir:int16, blue:int16, mir:int16, viewza:int16, sunza:int16, relaza:int16, cdoy:int16, reli:int16',
+		'TRMM_3B43':'lltid:int64, precipitation:float, relativeError:float, gaugeRelativeWeighting:int8'
 	}
 	flatArrayChunksize = {
-		'MOD09Q1': 1048576, # ~6MB
-		'MOD13Q1': 262144 # ~6MB
+		'MOD09Q1':	1048576, # ~6MB
+		'MOD13Q1':	262144, # ~6MB
+		'TRMM_3B43':262144 # ~2.25MB
 	}
 	if prod == 'default':
 		for mp in modisprod:
 			if mp in binaryFilepath:
 				prod = mp
 	if prod == 'default':
-                logging.exception("Unknown MODIS product: The MODIS product could not be figured out.")
-                raise Exception("Unknown MODIS product")
+                logging.exception("Unknown product: The product could not be figured out.")
+                raise Exception("Unknown product")
 	if prod in modisprod == False:
-		logging.exception("Unknown MODIS product: MODIS product not found.")
-		raise Exception("MODIS product not found")
+		logging.exception("Unknown product: Product not found.")
+		raise Exception("Product not found")
 	flatDimension = '[k=0:*, ' + str(chunkSize1D) + ', 0]'
 	if chunkSize1D < 1:
 		flatDimension = '[k=0:*, ' + str(flatArrayChunksize[prod]) + ',0]'
