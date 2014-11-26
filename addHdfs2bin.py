@@ -212,12 +212,12 @@ def main(argv):
 	# SCRIPT
 	####################################################
 	hpaths = hdfFilepaths.split(';')
-	print "Adding HDFs to binary file..."
+	#print "Adding HDFs to binary file..."
 	hdfcount = 0
 	for hp in hpaths:
 		if os.path.isfile(hp):
 			if hp.endswith('.hdf'):
-				print hp + ' ...'
+				#print hp + ' ...'
 				tmp = addHdf2bin(hp, binaryFilepath, period, startyear, lineMin, lineMax, sampMin, sampMax)
 				logging.info('HDF: ' + hp + ' added to: ' + binaryFilepath)
 				hdfcount += 1
@@ -227,7 +227,7 @@ def main(argv):
 			for (dirpath, dirnames, filenames) in os.walk(hp):
 				for fn in filenames:
 					if fn.endswith('.hdf'):
-						print dirpath + '/' + fn + ' ...'
+						#print dirpath + '/' + fn + ' ...'
 						tmp = addHdf2bin(dirpath + '/' + fn, binaryFilepath, period, startyear, lineMin, lineMax, sampMin, sampMax)
 						logging.info('HDF: ' + hp + ' added to: ' + binaryFilepath)
 						hdfcount += 1

@@ -65,7 +65,7 @@ def main(argv):
 					#Call to load2scidb.py
 					binaryFilepath = path_to_watch + str(ad)
 					cmd = cmdprefix + " -p " + prod + " "+ binaryFilepath + " " + destArray
-					print cmd
+					#print cmd
 					logging.info(cmd)
 					try:
 						subp.check_call(str("date"), shell=True)
