@@ -7,8 +7,6 @@ import argparse
 import logging
 import re
 
-# python hdf2sdbbin.py --log INFO /home/scidb/e4ftl01crusgsgov/MOLT/MOD09Q1005 /home/scidb/toLoad/modis MOD09Q1
- 
 
 def isLeapYear(year):
 	'''Returns TRUE if the given year (int) is leap and FALSE otherwise'''
@@ -75,17 +73,15 @@ def date2grid(dateFileName, period, startyear):
 def main(argv):
 	t0 = datetime.datetime.now()
 	parser = argparse.ArgumentParser(description = "Exports MODIS-HDFs to binary files for uploading to SCIDB using GRibeiro's tool")
-	parser.add_argument("hdfFolder", help = "Path to the folder containing the HDFs")
+	parser.add_argument("hdfFile", help = "Path to the HDF")
 	parser.add_argument("loadFolder", help = "Folder from where the binary files are uploaded to SCIDB")
 	parser.add_argument("product", help = "Product. e.g MOD09Q1")
-	parser.add_argument("--regex", help = "Regular expression for filtering files.", default = '^.*\.(hdf|HDF)$')
 	parser.add_argument("--log", help = "Log level. Default = WARNING", default = 'WARNING')
 	#Get paramters
 	args = parser.parse_args()
-	hdfFolder = os.path.join(args.hdfFolder, '')
+	hdfFile = os.path.join(args.hdfFile, '')
 	loadFolder = os.path.join(args.loadFolder, '')
 	product = args.product
-	regex = args.regex
 	log = args.log
 	####################################################
 	# CONFIG
@@ -126,21 +122,17 @@ def main(argv):
 	period = prodTemporalResolution[product]
 	startyear = prodStartYear[product]
 	bands = prodBands[product]
-	hdfs = listFiles(hdfFolder, regex)
-	for i in range(0, len(hdfs)) :
-		hdf = hdfs[i]
-		filename = os.path.basename(hdf)
-		time_id = date2grid(filename.split(".")[1][1:], period, startyear)
-		arg0 = "modis2scidb"
-		arg1 = " --f " + hdf
-		arg2 = " --o " + loadFolder + os.path.splitext(filename)[0] + ".sdbbin"
-		arg3 = " --b " + bands
-		arg4 = " --t " + str(time_id)
-		cmd = arg0 + arg1 + arg2 + arg3 + arg4
-		if(i != len(hdfs)):
-			cmd = cmd + " & "
-		logging.info(cmd)
-		subprocess.check_call(str(cmd), shell = True)
+
+	filename = os.path.basename(hdfFile)
+	time_id = date2grid(filename.split(".")[1][1:], period, startyear)
+	arg0 = "modis2scidb"
+	arg1 = " --f " + hdfFile
+	arg2 = " --o " + loadFolder + os.path.splitext(filename)[0] + ".sdbbin"
+	arg3 = " --b " + bands
+	arg4 = " --t " + str(time_id)
+	cmd = arg0 + arg1 + arg2 + arg3 + arg4
+	subprocess.check_call(str(cmd), shell = True)
+
 	t1 = datetime.datetime.now()	
 	tt = t1 - t0
 	logging.info("Finished in " + str(tt))
