@@ -47,7 +47,7 @@ def load2scidbStepByStep(bfile, DESTARRAY, flatArrayAQL, cmdaql, cmdafl, loadIns
 	#---------------
 	# Script starts here
 	#---------------
-	cmd = ""
+	cmd = "set no fetch; set no verbose; set no timer; "
 	try:
 		tmparraylist = []
 		TMP_VALUE1D = flatArrayAQL.split(' ')[2]
@@ -55,7 +55,7 @@ def load2scidbStepByStep(bfile, DESTARRAY, flatArrayAQL, cmdaql, cmdafl, loadIns
 		#---------------
 		#Create the temporal 1D array for holding the data
 		#---------------
-		cmd = cmdaql + flatArrayAQL + "\""
+		cmd = cmd + cmdaql + flatArrayAQL + "\""
 		retcode = subp.call(cmd, shell = True)#os.system(cmd)
 		tmparraylist.append(TMP_VALUE1D)
 		logging.info("Created the 1D array for the values: " + TMP_VALUE1D)

@@ -135,8 +135,8 @@ def main(argv):
 		arg3 = " --b " + bands
 		arg4 = " --t " + str(time_id)
 		cmd = arg0 + arg1 + arg2 + arg3 + arg4
-		if(i != len(hdfs)):
-			cmd = cmd + " & "
+		#if(i != len(hdfs)):
+		#	cmd = cmd + " & "
 		logging.info(cmd)
 		subprocess.check_call(str(cmd), shell = True)
 	t1 = datetime.datetime.now()	
