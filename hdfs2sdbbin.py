@@ -121,24 +121,35 @@ def main(argv):
 	####################################################
 	# 
 	####################################################
-	period = prodTemporalResolution[product]
-	startyear = prodStartYear[product]
-	bands = prodBands[product]
-	hdfs = listFiles(hdfFolder, regex)
-	for i in range(0, len(hdfs)) :
-		hdf = hdfs[i]
-		filename = os.path.basename(hdf)
-		time_id = date2grid(filename.split(".")[1], period, startyear)
-		arg0 = "modis2scidb"
-		arg1 = " --f " + hdf
-		arg2 = " --o " + loadFolder + os.path.splitext(filename)[0] + ".sdbbin"
-		arg3 = " --b " + bands
-		arg4 = " --t " + str(time_id)
-		cmd = arg0 + arg1 + arg2 + arg3 + arg4
-		#if(i != len(hdfs)):
-		#	cmd = cmd + " & "
-		logging.info(cmd)
-		subprocess.check_call(str(cmd), shell = True)
+	cmd = ""
+	try:
+		period = prodTemporalResolution[product]
+		startyear = prodStartYear[product]
+		bands = prodBands[product]
+		hdfs = listFiles(hdfFolder, regex)
+		for i in range(0, len(hdfs)) :
+			hdf = hdfs[i]
+			filename = os.path.basename(hdf)
+			time_id = date2grid(filename.split(".")[1], period, startyear)
+			arg0 = "modis2scidb"
+			arg1 = " --f " + hdf
+			arg2 = " --o " + loadFolder + os.path.splitext(filename)[0] + ".sdbbin"
+			arg3 = " --b " + bands
+			arg4 = " --t " + str(time_id)
+			cmd = arg0 + arg1 + arg2 + arg3 + arg4
+			#if(i != len(hdfs)):
+			#	cmd = cmd + " & "
+			logging.info(cmd)
+			subprocess.check_call(str(cmd), shell = True)
+	except subp.CalledProcessError as e:
+		logging.exception("CalledProcessError: " + cmd + "\n" + str(e.message))
+	except ValueError as e:
+		logging.exception("ValueError: " + cmd + "\n" + str(e.message))
+	except OSError as e:
+		logging.exception("OSError: " + cmd + "\n" + str(e.message))
+	except:
+		e = sys.exc_info()[0]
+		logging.exception("Unknown exception: " + cmd + "\n" + str(e.message))
 	t1 = datetime.datetime.now()	
 	tt = t1 - t0
 	logging.info("Finished in " + str(tt))

@@ -119,19 +119,30 @@ def main(argv):
 	####################################################
 	# 
 	####################################################
-	period = prodTemporalResolution[product]
-	startyear = prodStartYear[product]
-	bands = prodBands[product]
+	cmd = ""
+	try:
+		period = prodTemporalResolution[product]
+		startyear = prodStartYear[product]
+		bands = prodBands[product]
 
-	filename = os.path.basename(hdfFile)
-	time_id = date2grid(filename.split(".")[1], period, startyear)
-	arg0 = "modis2scidb"
-	arg1 = " --f " + hdfFile
-	arg2 = " --o " + loadFolder + os.path.splitext(filename)[0] + ".sdbbin"
-	arg3 = " --b " + bands
-	arg4 = " --t " + str(time_id)
-	cmd = arg0 + arg1 + arg2 + arg3 + arg4
-	subprocess.check_call(str(cmd), shell = True)
+		filename = os.path.basename(hdfFile)
+		time_id = date2grid(filename.split(".")[1], period, startyear)
+		arg0 = "modis2scidb"
+		arg1 = " --f " + hdfFile
+		arg2 = " --o " + loadFolder + os.path.splitext(filename)[0] + ".sdbbin"
+		arg3 = " --b " + bands
+		arg4 = " --t " + str(time_id)
+		cmd = arg0 + arg1 + arg2 + arg3 + arg4
+		subprocess.check_call(str(cmd), shell = True)
+	except subp.CalledProcessError as e:
+		logging.exception("CalledProcessError: " + cmd + "\n" + str(e.message))
+	except ValueError as e:
+		logging.exception("ValueError: " + cmd + "\n" + str(e.message))
+	except OSError as e:
+		logging.exception("OSError: " + cmd + "\n" + str(e.message))
+	except:
+		e = sys.exc_info()[0]
+		logging.exception("Unknown exception: " + cmd + "\n" + str(e.message))
 
 	t1 = datetime.datetime.now()	
 	tt = t1 - t0
