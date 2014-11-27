@@ -30,9 +30,20 @@ def getArrayname(aname):
 	res = aname
 	res = res.replace(".","_")
 	res = res.replace("-","_")
+	if (is_number(aname[0]) == True):
+		res = 'A' + res
 	return res
 
-
+def is_number(s):
+	'''Test if the given string is numeric - http://stackoverflow.com/questions/354038/how-do-i-check-if-a-string-is-a-number-in-python
+	'''
+	try:
+		float(s)
+		return True
+	except ValueError:
+		return False
+	
+	
 def processDatatypes(schema):
 	'''Return the data types from each field in an array schema'''
 	datatypes = []
