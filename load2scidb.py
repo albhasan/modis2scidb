@@ -47,7 +47,7 @@ def load2scidbStepByStep(bfile, DESTARRAY, flatArrayAQL, cmdaql, cmdafl, loadIns
 	#---------------
 	# Script starts here
 	#---------------
-	cmd = "set no fetch; set no verbose; set no timer; "
+	cmd = ""
 	try:
 		tmparraylist = []
 		TMP_VALUE1D = flatArrayAQL.split(' ')[2]
@@ -189,8 +189,6 @@ def main(argv):
 	iqpath = "/opt/scidb/" + os.environ['SCIDB_VER'] + "/bin/" # Path to iquery
 	cmdaql = iqpath + "iquery -nq \"" # Prefix on how to call iquery with AQL expression
 	cmdafl = iqpath + "iquery -naq \"" # Prefix on how to call iquery with AFL expression
-	#loadInstance = -2 #HACK: -2 (Load all data using the coordinator instance of the query.) is way faster than -1(Initiate the load from all instances)
-	#TODO: Try named instances for loading when a multi-node SciDB is in place
 	####################################################
 	# SCRIPT
 	####################################################

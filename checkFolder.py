@@ -49,11 +49,10 @@ def main(argv):
 	####################################################
 	# SCRIPT
 	####################################################
-	cmdprefix = "python " + scriptFolder + "load2scidb.py --log INFO "
+	cmdprefix = "python " + scriptFolder + "load2scidb.py --loadInstance -2 --log INFO "
 	before = dict ([(f, None) for f in os.listdir (path_to_watch)])
 	while 1:
 		time.sleep (checktime)
-		#print "Checkin " + path_to_watch + " for new hdfs..."
 		after = dict ([(f, None) for f in os.listdir (path_to_watch)])
 		added = [f for f in after if not f in before]
 		if added:
@@ -65,14 +64,11 @@ def main(argv):
 					#Call to load2scidb.py
 					binaryFilepath = path_to_watch + str(ad)
 					cmd = cmdprefix + " -p " + prod + " "+ binaryFilepath + " " + destArray
-					#print cmd
-					logging.info(cmd)
 					try:
-						subp.check_call(str("date"), shell=True)
+						logging.debug("Loading SDBBIN : ", cmd)
 						subp.check_call(str(cmd), shell=True)
-						subp.check_call(str("date"), shell=True)
+						logging.debug("Removing SDBBIN : ", fileFullPath)
 						os.remove(fileFullPath)
-						subp.check_call(str("date"), shell=True)
 					except subp.CalledProcessError as e:
 						logging.exception("CalledProcessError: " + cmd + "\n" + str(e.message))
 					except ValueError as e:
