@@ -6,6 +6,8 @@ import subprocess as subp
 import argparse
 import datetime
 import logging
+import re
+
 #********************************************************
 #WORKER
 #********************************************************
@@ -28,8 +30,8 @@ def main(argv):
 
 	if path_to_watch[-1:] != '/':
 		path_to_watch = path_to_watch + '/'
-        if scriptFolder[-1:] != '/':
-                scriptFolder = scriptFolder + '/'
+	if scriptFolder[-1:] != '/':
+		scriptFolder = scriptFolder + '/'
 	####################################################
 	# CONFIG
 	####################################################
@@ -49,35 +51,41 @@ def main(argv):
 	####################################################
 	# SCRIPT
 	####################################################
-	cmdprefix = "python " + scriptFolder + "load2scidb.py --loadInstance -2 --log INFO "
+	
+	
+	sdbInstances = int(subp.check_output("iquery -aq \"list('instances');\" | wc -l", shell=True)) - 3
+	
+	
+	cmdprefix = "parallel -j " + str(sdbInstances) + " --no-notice python " + scriptFolder + "load2scidb.py --loadInstance -2 --log " + log + " --product " + prod + " {1} " + destArray + " ::: "
 	before = dict ([(f, None) for f in os.listdir (path_to_watch)])
 	while 1:
 		time.sleep (checktime)
 		after = dict ([(f, None) for f in os.listdir (path_to_watch)])
 		added = [f for f in after if not f in before]
 		if added:
-			logging.debug("New file in folder: ", ", ".join(added))
+			sdbbinList = []
 			for ad in added:
 				fileFullPath = path_to_watch + str(ad)
 				fileName, fileExtension = os.path.splitext(fileFullPath)
 				if(fileExtension == '.sdbbin'):
-					#Call to load2scidb.py
-					binaryFilepath = path_to_watch + str(ad)
-					cmd = cmdprefix + " -p " + prod + " "+ binaryFilepath + " " + destArray
-					try:
-						logging.debug("Loading SDBBIN : ", cmd)
-						subp.check_call(str(cmd), shell=True)
-						logging.debug("Removing SDBBIN : ", fileFullPath)
-						os.remove(fileFullPath)
-					except subp.CalledProcessError as e:
-						logging.exception("CalledProcessError: " + cmd + "\n" + str(e.message))
-					except ValueError as e:
-						logging.exception("ValueError: " + cmd + "\n" + str(e.message))
-					except OSError as e:
-						logging.exception("OSError: " + cmd + "\n" + str(e.message))
-					except:
-						e = sys.exc_info()[0]
-						logging.exception("Unknown exception: " + cmd + "\n" + str(e.message))
+					sdbbinList.append(fileFullPath)
+			#Call to load2scidb.py
+			cmd = cmdprefix + " ".join(sdbbinList)
+			try:
+				#logging.info("Loading SDBBINs : ", re.escape(str(cmd)))
+				subp.check_call(str(cmd), shell=True)
+				for f in sdbbinList:
+					#logging.info("Removing SDBBIN : ", re.escape(str(f)))
+					os.remove(f)
+			except subp.CalledProcessError as e:
+				logging.exception("CalledProcessError: " + str(cmd) + "\n" + str(e.message))
+			except ValueError as e:
+				logging.exception("ValueError: " + str(cmd) + "\n" + str(e.message))
+			except OSError as e:
+				logging.exception("OSError: " + str(cmd) + "\n" + str(e.message))
+			except:
+				e = sys.exc_info()[0]
+				logging.exception("Unknown exception: " + str(cmd) + "\n" + str(e.message))
 		before = after
 
 	
