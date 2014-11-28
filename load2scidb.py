@@ -52,56 +52,6 @@ def processDatatypes(schema):
 		datatypes.append(ss[ss.index(':') + 1:len(ss)])
 	return ', '.join(datatypes)
 
-
-def load2scidbStepByStep(bfile, DESTARRAY, flatArrayAQL, cmdaql, cmdafl, loadInstance):
-	'''DEPRECATED: Load the binary file to SciDB'''
-	#---------------
-	# Script starts here
-	#---------------
-	cmd = ""
-	try:
-		tmparraylist = []
-		TMP_VALUE1D = flatArrayAQL.split(' ')[2]
-		schema = flatArrayAQL[flatArrayAQL.index('<') + 1:flatArrayAQL.index('>')]
-		#---------------
-		#Create the temporal 1D array for holding the data
-		#---------------
-		cmd = cmd + cmdaql + flatArrayAQL + "\""
-		retcode = subp.call(cmd, shell = True)#os.system(cmd)
-		tmparraylist.append(TMP_VALUE1D)
-		logging.info("Created the 1D array for the values: " + TMP_VALUE1D)
-		#---------------
-		#Load to 1D temporal array
-		#---------------
-		afl = "load(" + TMP_VALUE1D + ", '" + bfile + "', " + str(loadInstance) + ", '(" + processDatatypes(schema) + ")', 0, shadowArray);"
-		cmd = cmdafl + afl + "\""
-		retcode = subp.call(cmd, shell = True)
-		logging.info("Loaded the binary file to 1D-Array using instance " + str(loadInstance))
-		#---------------
-		#Re-build dimension indexes and insert into the destination array
-		#---------------
-		afl = "insert(redimension(apply(" + TMP_VALUE1D + ",col_id, int64(lltid - floor(lltid/pow(10,11)) * pow(10,11) - floor((lltid - (floor(lltid/pow(10,11)) * pow(10,11)))/pow(10,6)) * pow(10,6)), row_id, int64(floor((lltid - (floor(lltid/pow(10,11)) * pow(10,11)))/pow(10,6))),time_id, int64(floor(lltid/pow(10,11)))), " + DESTARRAY + "), " + DESTARRAY + ");"
-		cmd = cmdafl + afl + "\""
-		retcode = subp.call(cmd, shell = True)
-		logging.info("Dimension indexes are built and inserted into array " + DESTARRAY)
-		#---------------
-		#Removes temporal arrays
-		#---------------
-		for an in tmparraylist:
-			aql = "DROP ARRAY " + an + ";"
-			cmd = cmdaql + aql + "\""
-			retcode = subp.call(cmd, shell = True)#os.system(cmd)
-		logging.info("Temporal arrays dropped")
-	except subp.CalledProcessError as e:
-		logging.exception("CalledProcessError: " + cmd + "\n" + str(e.message))
-	except ValueError as e:
-		logging.exception("ValueError: " + cmd + "\n" + str(e.message))
-	except OSError as e:
-		logging.exception("OSError: " + cmd + "\n" + str(e.message))
-	except:
-		e = sys.exc_info()[0]
-		logging.exception("Unknown exception: " + cmd + "\n" + str(e.message))
-
 		
 def load2scidb(bfile, DESTARRAY, flatArrayAQL, cmdaql, cmdafl, loadInstance):
 	'''Load the binary file to SciDB'''
