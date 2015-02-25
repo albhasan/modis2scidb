@@ -142,7 +142,7 @@ def main(argv):
 	modisprod = ['MOD09Q1', 'MOD13Q1', 'TRMM_3B43']
 	flatArraySchema = {
 		'MOD09Q1':	'lltid:int64, red:int16, nir:int16, quality:uint16',
-		'MOD13Q1':	'lltid:int64, ndvi:int16, evi:int16, quality:uint16, red:int16, nir:int16, blue:int16, mir:int16, viewza:int16, sunza:int16, relaza:int16, cdoy:int16, reli:int16',
+		'MOD13Q1':	'lltid:int64, ndvi:int16, evi:int16, quality:uint16, red:int16, nir:int16, blue:int16, mir:int16, viewza:int16, sunza:int16, relaza:int16, cdoy:int16, reli:int8',
 		'TRMM_3B43':'lltid:int64, precipitation:float, relativeError:float, gaugeRelativeWeighting:int8'
 	}
 	flatArrayChunksize = {
