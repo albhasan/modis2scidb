@@ -1,19 +1,19 @@
 modis2scidb
 ===========
 
-Python scripts for uploading MODIS images to SciDB. These scripts provide a way to load several MODIS HDF files to a 3-dimension SciDB array by making calls to SciDB data loading tools.
+Python scripts for uploading MODIS images to SciDB. These scripts provide the way to load several MODIS HDF files to a 3-dimension SciDB array by making calls to SciDB data loading tools.
 
 Loading MODIS data to SciDB is a 3 step process:
 
 <ol>
-<li>Export the HDF image file to SciDB's binary. MODIS images are available in <a href="http://www.hdfgroup.org/">HDF</a> format; on the other hand, SciDB is able to load data using <a href="http://www.paradigm4.com/HTMLmanual/15.7/scidb_ug/binaryFileFormat.html">SciDB's binary format</a>.</li>
+<li>Export the HDF image file to SciDB's binary. MODIS images are available in <a href="http://www.hdfgroup.org/" target="_blank">HDF</a> format; on the other hand, SciDB is able to load data using <a href="http://www.paradigm4.com/HTMLmanual/15.7/scidb_ug/binaryFileFormat.html" target="_blank">SciDB's binary format</a>.</li>
 <li>Load the binary image to a 1-dimension SciDB array.</li>
 <li>Redimension the array from 1 to 3 dimensions.</li>
 </ol>
 
-The script <em>checkFolder.py</em> monitors a folder looking for SciDB binary data. Each time a new file is found it calls the script <em>load2scidb.py</em> which actually loads the data to the SciDB 3D array (steps 2 & 3). Loading data to a 3D array is not straight forward, instead, the binary data is loaded into a temporal 1D array which is re-dimensioned into a 3D array. Then, the 1D array is deleted. These temporal 1D arrays are named following the pattern <em>load_XXXXXXXXX</em> and they are deleted by the script once the re-dimension is done.
+The script <em>checkFolder.py</em> monitors a folder looking for SciDB binary data. Each time a new file is found it calls the script <em>load2scidb.py</em> which loads the data into a SciDB 3D array (steps 2 & 3). Loading data to a 3D array is not straight forward, instead, the binary data is loaded first into a temporal 1D array which is re-dimensioned later into a 3D array. Then, the 1D array is deleted. These temporal 1D arrays are named following the pattern <em>load_XXXXXXXXX</em> and they are deleted by the script once the re-dimension is done.
 
-The script <em>hdfs2sdbbin.py</em> exports MODIS data to SciDB binary format. For this, it calls the binary tool for exporting HDF to SciDB binary <a href="https://github.com/gqueiroz/modis2scidb">modis2scidb</a>.
+The script <em>hdfs2sdbbin.py</em> exports MODIS data to SciDB binary format into a specific folder. For this, it calls the binary tool for exporting HDF to SciDB binary <a href="https://github.com/gqueiroz/modis2scidb">modis2scidb</a>.
 
 Since the exporting is independent from the loading script, the HDf-to-binary script can be executed on several servers simultaneously while loading is only done by the SciDB's coordinator instance.
 
@@ -23,7 +23,7 @@ Since the exporting is independent from the loading script, the HDf-to-binary sc
 <li>Python.</li>
 <li>SciDB 14.3. SciDB must be installed in the default location</li>
 <li>These scripts must be installed on the SciDB coordinator instance and they must be ran using an user enabled to execute IQUERY.</li>
-<li> The binary tool for exporting HDF to SciDB binary called: <a href="https://github.com/gqueiroz/modis2scidb">modis2scidb</a></li>
+<li> The binary tool for exporting HDF to SciDB binary called: <a href="https://github.com/gqueiroz/modis2scidb" target="_blank">modis2scidb</a></li>
 </ul>
 
 <h3>Files:</h3>
