@@ -1,4 +1,3 @@
-#CHRONOS python checkFolder.py -t 60 --log INFO /dados1/scidb/toLoad/ /dados/scidb/scripts/MOD13Q1/ MOD13Q1_TEST009_20140605
 import os
 import sys
 import argparse
@@ -6,21 +5,9 @@ import datetime
 import subprocess as subp
 import logging
 from subprocess import check_output as qx
-##################################################
-# CREATE DESTINATION ARRAY
-##################################################
-#iquery -o dcsv -a
-#set lang aql;
-#DROP ARRAY MOD13Q1_TEST009_20140605;
-#CREATE ARRAY MOD13Q1_TEST009_20140605 <ndvi:int16, evi:int16, quality:uint16, red:int16, nir:int16, blue:int16, mir:int16, viewza:int16, sunza:int16, relaza:int16, cdoy:int16, reli:int8> [col_id=48000:72000,502,5,row_id=38400:62400,502,5,time_id=0:9200,1,0];
-#CREATE ARRAY MOD13Q1_TEST009_20140605 <ndvi:int16, evi:int16, quality:uint16, red:int16, nir:int16, blue:int16, mir:int16, viewza:int16, sunza:int16, relaza:int16, cdoy:int16, reli:int16> [col_id=48000:72000,502,5,row_id=38400:62400,502,5,time_id=0:9200,1,0];
-##################################################
-# GET TIME SERIES
-##################################################
-#iquery -o dcsv -a
-#set lang aql;
-#SELECT * FROM MOD13Q1_TEST009_20140605 WHERE col_id = 57600 AND row_id = 43200;
-#time iquery -q "SELECT * FROM MOD13Q1_TEST009_20140605 WHERE col_id = 57600 AND row_id = 43200"
+
+# sample destination array (MOD13Q1)
+# iquery -aq "CREATE ARRAY mod13q1_512 <ndvi:int16, evi:int16, quality:uint16, red:int16, nir:int16, blue:int16, mir:int16, view_zenith:int16, sun_zenith:int16, relative_azimuth:int16, day_of_year:int16, reliability:int8> [col_id=0:172799,40,0, row_id=0:86399,40,0, time_id=0:511,512,0]"
 
 #********************************************************
 # UTIL
@@ -138,11 +125,12 @@ def main(argv):
 	log = args.log
 	####################################################
 	# CONFIG
+	# old names field names #'MOD13Q1':	'lltid:int64, ndvi:int16, evi:int16, quality:uint16, red:int16, nir:int16, blue:int16, mir:int16, viewza:int16, sunza:int16, relaza:int16, cdoy:int16, reli:int8',
 	####################################################
 	modisprod = ['MOD09Q1', 'MOD13Q1', 'TRMM_3B43']
 	flatArraySchema = {
 		'MOD09Q1':	'lltid:int64, red:int16, nir:int16, quality:uint16',
-		'MOD13Q1':	'lltid:int64, ndvi:int16, evi:int16, quality:uint16, red:int16, nir:int16, blue:int16, mir:int16, viewza:int16, sunza:int16, relaza:int16, cdoy:int16, reli:int8',
+        'MOD13Q1':	'lltid:int64, ndvi:int16, evi:int16, quality:uint16, red:int16, nir:int16, blue:int16, mir:int16, view_zenith:int16, sun_zenith:int16, relative_azimuth:int16, day_of_year:int16, reliability:int8',
 		'TRMM_3B43':'lltid:int64, precipitation:float, relativeError:float, gaugeRelativeWeighting:int8'
 	}
 	flatArrayChunksize = {
